@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Newton-Raphson Solver</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+    <script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <script type="module">
+        import 'https://unpkg.com/mathlive?module';
+    </script>
+
+</head>
+
+<body>
+
+    <div class="sidebar">
+
+        <h2>Contents</h2>
+
+        <a href="#discussion">
+            Mathematical Discussion
+        </a>
+
+        <a href="#calculator">
+            Newton-Raphson Calculator
+        </a>
+
+        <a href="#solution-steps">
+            Solution Steps
+        </a>
+
+        <a href="#graph-section">
+            Graphical Representation
+        </a>
+
+        <a href="#worked-examples">
+            Worked Examples
+        </a>
+
+    </div>
+
+<div class="main-content">
+
+    <div class="container">
+
+    <h1>Newton-Raphson Numerical Method</h1>
+
+<div class="card" id="discussion">
+
+    <h2>Mathematical Discussion</h2>
+
+    <p>
+        The <strong>Newton-Raphson Method</strong> is a numerical method used
+        to approximate the roots of nonlinear equations of the form:
+    </p>
+
+    <p>
+        \[
+            f(x)=0
+        \]
+    </p>
+
+    <p>
+        The method begins with an initial approximation
+        \(x_0\) and repeatedly improves the estimate using
+        tangent lines to the function.
+    </p>
+
+    <p>
+        The iterative formula for the Newton-Raphson Method is:
+    </p>
+
+    <p>
+        \[
+            x_{n+1}
+            =
+            x_n
+            -
+            \frac{f(x_n)}{f'(x_n)}
+        \]
+    </p>
+
+    <p>
+        where:
+    </p>
+
+    <ul class="discussion-list">
+
+        <li>
+            \(f(x)\) is the original function
+        </li>
+
+        <li>
+            \(f'(x)\) is the derivative of the function
+        </li>
+
+        <li>
+            \(x_n\) is the current approximation
+        </li>
+
+        <li>
+            \(x_{n+1}\) is the improved approximation
+        </li>
+
+    </ul>
+
+    <p>
+        The process continues until the difference between
+        successive approximations becomes sufficiently small.
+    </p>
+
+    <h3>Advantages</h3>
+
+    <ul class="discussion-list">
+
+        <li>Fast convergence near the root</li>
+
+        <li>High accuracy</li>
+
+        <li>Efficient for many engineering problems</li>
+
+    </ul>
+
+    <h3>Disadvantages</h3>
+
+    <ul class="discussion-list">
+
+        <li>Requires computation of derivatives</li>
+
+        <li>May fail if the initial guess is poor</li>
+
+        <li>Fails when \(f'(x)=0\)</li>
+
+    </ul>
+
+</div>
+
+    <div class="card" id="calculator">
+
+        <form method="POST">
+
+            <div class="form-grid">
+
+                <div class="input-group full-width">
+
+                    <h2>Newton-Raphson Method Calculator</h2>
+
+                    <label>Function f(x)</label>
+
+                    <math-field id="mathInput"
+                                virtual-keyboard-mode="onfocus">
+                    </math-field>
+
+                    <input type="hidden"
+                        name="function"
+                        id="hiddenFunction">
+
+                </div>
+
+                <div class="input-group">
+
+                    <label>Initial Guess</label>
+
+                    <input type="number"
+                        step="any"
+                        name="x0"
+                        required>
+
+                </div>
+
+                <div class="input-group">
+
+                    <label>Maximum Iterations</label>
+
+                    <input type="number"
+                        name="max_iter"
+                        value="10">
+
+                </div>
+
+                <div class="input-group">
+
+                    <label>Tolerance</label>
+
+                    <input type="number"
+                        step="any"
+                        name="tol"
+                        value="0.0001">
+
+                </div>
+
+                <div class="input-group">
+
+                    <label style="opacity:0;">Compute</label>
+
+                    <button type="submit">
+                        Compute Root
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    {% if result %}
+
+    <div class="card">
+
+        <h2>Mathematical Representation</h2>
+
+        <p>\[
+            f(x) = {{ latex_function }}
+        \]</p>
+
+        <p>\[
+            f'(x) = {{ latex_derivative }}
+        \]</p>
+
+        <h2>Computed Root</h2>
+
+        <p class="root">
+            \( x \approx {{ result }} \)
+        </p>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Iteration Table</h2>
+
+        <table>
+
+            <tr>
+                <th>Iteration</th>
+                <th>x</th>
+                <th>f(x)</th>
+                <th>f'(x)</th>
+                <th>x_new</th>
+                <th>Error</th>
+            </tr>
+
+            {% for step in steps %}
+            <tr>
+                <td>{{ step.iteration }}</td>
+                <td>{{ step.x }}</td>
+                <td>{{ step.fx }}</td>
+                <td>{{ step.dfx }}</td>
+                <td>{{ step.x_new }}</td>
+                <td>{{ step.error }}</td>
+            </tr>
+            {% endfor %}
+
+        </table>
+
+    </div>
+
+    <div class="card" id="solution-steps">
+
+        <h2>Step-by-Step Newton-Raphson Solution</h2>
+
+        {% for step in solution_steps %}
+
+            <div class="step-box">
+
+                {{ step | safe }}
+
+            </div>
+
+    {% endfor %}
+
+    </div>
+
+    <div class="card" id="graph-section">
+
+        <h2>Graphical Representation</h2>
+
+        <div id="graph"></div>
+
+    </div>
+
+    <script>
+
+        var graphs = JSON.parse('{{ graphJSON | safe }}');
+
+        Plotly.newPlot('graph', graphs);
+
+    </script>
+
+    {% endif %}
+
+    <div class="card" id="worked-examples">
+
+    <h2>Worked Example 1</h2>
+
+    <p>
+        Solve the equation:
+    </p>
+
+    <p>\[
+        f(x)=x^2-2
+    \]</p>
+
+    <p>
+        using the Newton-Raphson Method with initial guess:
+    </p>
+
+    <p>\[
+        x_0=1
+    \]</p>
+
+    <hr>
+
+    <p><strong>Step 1: Derivative</strong></p>
+
+    <p>\[
+        f'(x)=2x
+    \]</p>
+
+    <p><strong>Step 2: Newton-Raphson Formula</strong></p>
+
+    <p>\[
+        x_{n+1}=x_n-\frac{f(x_n)}{f'(x_n)}
+    \]</p>
+
+    <hr>
+
+    <p><strong>Iteration 0</strong></p>
+
+    <p>\[
+        x_1 = 1-\frac{1^2-2}{2(1)}
+    \]</p>
+
+    <p>\[
+        x_1=1-\frac{-1}{2}
+    \]</p>
+
+    <p>\[
+        x_1=1.5
+    \]</p>
+
+    <hr>
+
+    <p><strong>Iteration 1</strong></p>
+
+    <p>\[
+        x_2=1.5-\frac{(1.5)^2-2}{2(1.5)}
+    \]</p>
+
+    <p>\[
+        x_2=1.5-\frac{0.25}{3}
+    \]</p>
+
+    <p>\[
+        x_2=1.416667
+    \]</p>
+
+    <hr>
+
+    <p><strong>Iteration 2</strong></p>
+
+    <p>\[
+        x_3=1.416667-\frac{(1.416667)^2-2}{2(1.416667)}
+    \]</p>
+
+    <p>\[
+        x_3\approx1.414216
+    \]</p>
+
+    <hr>
+
+    <p class="root">
+        Final Answer:
+        \[
+            \sqrt{2}\approx1.414216
+        \]
+    </p>
+
+</div>
+
+<div class="card">
+
+    <h2>Worked Example 2</h2>
+
+    <p>
+        Solve the equation:
+    </p>
+
+    <p>\[
+        f(x)=x^3-x-2
+    \]</p>
+
+    <p>
+        using Newton-Raphson Method with:
+    </p>
+
+    <p>\[
+        x_0=1.5
+    \]</p>
+
+    <hr>
+
+    <p><strong>Step 1: Derivative</strong></p>
+
+    <p>\[
+        f'(x)=3x^2-1
+    \]</p>
+
+    <p><strong>Step 2: Newton-Raphson Formula</strong></p>
+
+    <p>\[
+        x_{n+1}=x_n-\frac{x_n^3-x_n-2}{3x_n^2-1}
+    \]</p>
+
+    <hr>
+
+    <p><strong>Iteration 0</strong></p>
+
+    <p>\[
+        x_1=1.5-\frac{1.5^3-1.5-2}{3(1.5)^2-1}
+    \]</p>
+
+    <p>\[
+        x_1=1.5-\frac{-0.125}{5.75}
+    \]</p>
+
+    <p>\[
+        x_1=1.521739
+    \]</p>
+
+    <hr>
+
+    <p><strong>Iteration 1</strong></p>
+
+    <p>\[
+        x_2=1.521739-\frac{(1.521739)^3-1.521739-2}{3(1.521739)^2-1}
+    \]</p>
+
+    <p>\[
+        x_2\approx1.521380
+    \]</p>
+
+    <hr>
+
+    <p><strong>Iteration 2</strong></p>
+
+    <p>\[
+        x_3\approx1.521380
+    \]</p>
+
+    <p>
+        The values no longer change significantly.
+    </p>
+
+    <hr>
+
+    <p class="root">
+        Final Answer:
+        \[
+            x\approx1.521380
+        \]
+    </p>
+
+</div>
+
+</div>
+
+<script>
+
+    const mathField = document.getElementById('mathInput');
+    const hiddenInput = document.getElementById('hiddenFunction');
+
+    document.querySelector('form').addEventListener('submit', function () {
+
+        let expr = mathField.getValue('ascii-math');
+
+        // Convert powers
+        expr = expr.replace(/\^/g, '**');
+
+        // Insert multiplication automatically
+        expr = expr.replace(/(\d)([a-zA-Z])/g, '$1*$2');
+
+        // Example: )( -> )*(
+        expr = expr.replace(/\)\(/g, ')*(');
+
+        hiddenInput.value = expr;
+
+        console.log(expr);
+    });
+
+</script>
+
+    </div>
+
+</div>
+</body>
+</html>
